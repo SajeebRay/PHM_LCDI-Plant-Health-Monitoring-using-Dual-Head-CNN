@@ -103,8 +103,8 @@ if use_examples:
                 # Display image
                 cols[idx % 4].image(img, use_column_width=True)
 
-                # Make the image clickable using a button with unique key
-                if cols[idx % 4].button(" ", key=f"{file}_btn"):
+                # Button below image
+                if cols[idx % 4].button("Make Prediction ➡️", key=f"{file}_btn"):
                     with open(img_path, "rb") as f:
                         uploaded_file = io.BytesIO(f.read())
 

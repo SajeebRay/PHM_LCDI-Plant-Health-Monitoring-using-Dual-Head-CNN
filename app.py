@@ -80,7 +80,7 @@ st.warning("⚠️ Note: Uploading a image from an **unsupported or unlisted pla
 st.warning("⚠️ Photo capturing rule: pluck the leaf from the plant and place it on a white paper before taking the picture.")
 
 #########Example ################
-use_examples = st.checkbox("Use Examples")
+use_examples = st.checkbox("👈 Click here to use examples")
 
 uploaded_file = None
 

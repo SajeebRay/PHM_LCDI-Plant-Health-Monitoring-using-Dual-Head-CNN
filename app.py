@@ -3,6 +3,8 @@ from PIL import Image
 from model_for_app import load_model_and_labels, predict_image
 from utils import read_imagefile
 import torch
+import os
+import io
 
 # Load model and labels
 model, Names, diseases = load_model_and_labels()
@@ -76,30 +78,53 @@ with col2:
 
 st.warning("⚠️ Note: Uploading a image from an **unsupported or unlisted plant type** may result in **inaccurate or incorrect predictions**.")
 
+#########Example ################
+use_examples = st.checkbox("Use Examples")
 
-uploaded_file = st.file_uploader("Upload Leaf Image", type=["jpg", "jpeg", "png"])
+uploaded_file = None
 
+if use_examples:
+    example_dir = r"D:\00 This Drive is Used by Sajeeb\API\PHM_LCDI-Plant-Health-Monitoring-using-Dual-Head-CNN\examples"
+    if os.path.isdir(example_dir):
+        example_files = [f for f in os.listdir(example_dir) if f.lower().endswith((".jpg", ".jpeg", ".png"))]
+        if example_files:
+            st.subheader("📷 Click an Example Image to Predict")
+            cols = st.columns(min(4, len(example_files)))  # display up to 4 per row
+
+            for idx, file in enumerate(example_files):
+                img_path = os.path.join(example_dir, file)
+                try:
+                    img = Image.open(img_path)
+                except Exception as e:
+                    st.warning(f"Cannot open {file}: {e}")
+                    continue
+
+                # Display image
+                cols[idx % 4].image(img, use_column_width=True)
+
+                # Make the image clickable using a button with unique key
+                if cols[idx % 4].button(" ", key=f"{file}_btn"):
+                    with open(img_path, "rb") as f:
+                        uploaded_file = io.BytesIO(f.read())
+
+else:
+    uploaded_file = st.file_uploader("Upload Leaf Image", type=["jpg", "jpeg", "png"])
+
+# Prediction code (same as before)
 if uploaded_file is not None:
     try:
         image_bytes = uploaded_file.read()
         image = read_imagefile(image_bytes)
-        st.image(
-            Image.open(uploaded_file), caption="Uploaded Image", use_column_width=True
-        )
+        st.image(Image.open(io.BytesIO(image_bytes)), caption="Selected Image", use_column_width=True)
 
-        leaf_class, disease_class, leaf_conf, disease_conf, disease_probs = (
-            predict_image(image, model, return_probs=True)
-        )
+        leaf_class, disease_class, leaf_conf, disease_conf, disease_probs = predict_image(image, model, return_probs=True)
 
         plant_name = Names[leaf_class]
         valid_indices = plant_disease_map.get(plant_name, [])
 
         if valid_indices:
             masked_probs = torch.tensor(
-                [
-                    disease_probs[i] if i in valid_indices else float("-inf")
-                    for i in range(len(disease_probs))
-                ]
+                [disease_probs[i] if i in valid_indices else float("-inf") for i in range(len(disease_probs))]
             )
             disease_class = int(torch.argmax(masked_probs).item())
             disease_conf = disease_probs[disease_class]
@@ -107,12 +132,48 @@ if uploaded_file is not None:
         st.success("✅ Prediction Complete")
         st.write("### Results:")
         st.write(f"**Plant Name**: {plant_name} ({leaf_conf * 100:.2f}% confidence)")
-        st.write(
-            f"**Disease**: {diseases[disease_class]} ({disease_conf * 100:.2f}% confidence)"
-        )
+        st.write(f"**Disease**: {diseases[disease_class]} ({disease_conf * 100:.2f}% confidence)")
 
     except Exception as e:
         st.error(f"Error during prediction: {str(e)}")
+
+################Example End #########
+# uploaded_file = st.file_uploader("Upload Leaf Image", type=["jpg", "jpeg", "png"])
+
+# if uploaded_file is not None:
+#     try:
+#         image_bytes = uploaded_file.read()
+#         image = read_imagefile(image_bytes)
+#         st.image(
+#             Image.open(uploaded_file), caption="Uploaded Image", use_column_width=True
+#         )
+
+#         leaf_class, disease_class, leaf_conf, disease_conf, disease_probs = (
+#             predict_image(image, model, return_probs=True)
+#         )
+
+#         plant_name = Names[leaf_class]
+#         valid_indices = plant_disease_map.get(plant_name, [])
+
+#         if valid_indices:
+#             masked_probs = torch.tensor(
+#                 [
+#                     disease_probs[i] if i in valid_indices else float("-inf")
+#                     for i in range(len(disease_probs))
+#                 ]
+#             )
+#             disease_class = int(torch.argmax(masked_probs).item())
+#             disease_conf = disease_probs[disease_class]
+
+#         st.success("✅ Prediction Complete")
+#         st.write("### Results:")
+#         st.write(f"**Plant Name**: {plant_name} ({leaf_conf * 100:.2f}% confidence)")
+#         st.write(
+#             f"**Disease**: {diseases[disease_class]} ({disease_conf * 100:.2f}% confidence)"
+#         )
+
+#     except Exception as e:
+#         st.error(f"Error during prediction: {str(e)}")
 
 st.markdown("""
 ---  

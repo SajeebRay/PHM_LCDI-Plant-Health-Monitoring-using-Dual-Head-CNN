@@ -76,7 +76,8 @@ with col2:
     ]
     st.markdown("\n".join([f"- {disease}" for disease in diseases]))
 
-st.warning("⚠️ Note: Uploading a image from an **unsupported or unlisted plant type** may result in **inaccurate or incorrect predictions**.\n Photo capturing rule: pluck the leaf from the plant and place it on a white paper before taking the picture.")
+st.warning("⚠️ Note: Uploading a image from an **unsupported or unlisted plant type** may result in **inaccurate or incorrect predictions**.")
+st.warning("⚠️ Photo capturing rule: pluck the leaf from the plant and place it on a white paper before taking the picture.")
 
 #########Example ################
 use_examples = st.checkbox("Use Examples")
@@ -108,9 +109,14 @@ if use_examples:
                     with open(img_path, "rb") as f:
                         uploaded_file = io.BytesIO(f.read())
 
-else:
-    uploaded_file = st.file_uploader("Upload Leaf Image", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader("Upload Leaf Image", type=["jpg", "jpeg", "png"])
+use_camera = st.checkbox("Camera Option")
 
+if use_camera:
+    camera_file = st.camera_input("Take a photo of the leaf")
+    if camera_file is not None:
+        uploaded_file = camera_file 
+        
 # Prediction code (same as before)
 if uploaded_file is not None:
     try:

@@ -40,7 +40,7 @@ st.set_page_config(page_title="Plant Health Monitoring", layout="centered")
 # Title and Description
 st.title("🌿 Plant Health Monitoring")
 st.markdown("""
-Upload an image of a **plant leaf** to automatically detect the **plant type** and identify any **diseases** present.  
+Upload an image of a **plant leaf** to detect the **plant type** and identify **leaf disease**.  
 This tool uses a trained AI model to assist farmers, gardeners, and researchers in monitoring plant health and making informed decisions.
 """)
 
@@ -76,7 +76,7 @@ with col2:
     ]
     st.markdown("\n".join([f"- {disease}" for disease in diseases]))
 
-st.warning("⚠️ Note: Uploading a image from an **unsupported or unlisted plant type** may result in **inaccurate or incorrect predictions**.")
+st.warning("⚠️ Note: Uploading a image from an **unsupported or unlisted plant type** may result in **inaccurate or incorrect predictions**.\n Photo capturing rule: pluck the leaf from the plant and place it on a white paper before taking the picture.")
 
 #########Example ################
 use_examples = st.checkbox("Use Examples")

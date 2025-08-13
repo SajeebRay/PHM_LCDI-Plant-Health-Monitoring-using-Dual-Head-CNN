@@ -84,7 +84,8 @@ use_examples = st.checkbox("Use Examples")
 uploaded_file = None
 
 if use_examples:
-    example_dir = r"D:\00 This Drive is Used by Sajeeb\API\PHM_LCDI-Plant-Health-Monitoring-using-Dual-Head-CNN\examples"
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    example_dir = os.path.join(script_dir, "examples")
     if os.path.isdir(example_dir):
         example_files = [f for f in os.listdir(example_dir) if f.lower().endswith((".jpg", ".jpeg", ".png"))]
         if example_files:

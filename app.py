@@ -109,7 +109,7 @@ if use_examples:
                     with open(img_path, "rb") as f:
                         uploaded_file = io.BytesIO(f.read())
 
-uploaded_file = st.file_uploader("Upload Leaf Image", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader("Upload a leaf image", type=["jpg", "jpeg", "png"])
 use_camera = st.checkbox("Camera Option")
 
 if use_camera:

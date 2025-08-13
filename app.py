@@ -110,12 +110,12 @@ if use_examples:
                         uploaded_file = io.BytesIO(f.read())
 
 uploaded_file = st.file_uploader("Upload a leaf image", type=["jpg", "jpeg", "png"])
-use_camera = st.checkbox("Camera Option")
+# use_camera = st.checkbox("Camera Option")
 
-if use_camera:
-    camera_file = st.camera_input("Take a photo of the leaf")
-    if camera_file is not None:
-        uploaded_file = camera_file 
+# if use_camera:
+#     camera_file = st.camera_input("Take a photo of the leaf")
+#     if camera_file is not None:
+#         uploaded_file = camera_file 
         
 # Prediction code (same as before)
 if uploaded_file is not None:

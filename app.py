@@ -28,13 +28,6 @@ plant_disease_map = {
 }
 
 # Streamlit app config
-# st.set_page_config(page_title="Plant Health Monitoring", layout="centered")
-# st.title("🌿 Plant Health Monitoring")
-# st.markdown(
-#     "Upload an image of a plant leaf to detect the **plant type** and **possible disease**."
-# )
-
-# Streamlit app config
 st.set_page_config(page_title="Plant Health Monitoring", layout="centered")
 
 # Title and Description
@@ -111,14 +104,11 @@ if use_examples:
                         
 else: 
     uploaded_file = st.file_uploader("Upload a leaf image", type=["jpg", "jpeg", "png"])
-# use_camera = st.checkbox("Camera Option")
-
-# if use_camera:
-#     camera_file = st.camera_input("Take a photo of the leaf")
-#     if camera_file is not None:
-#         uploaded_file = camera_file 
-        
-# Prediction code (same as before)
+use_camera = st.checkbox("Camera Option")
+if use_camera:
+    camera_file = st.camera_input("Take a photo of the leaf")
+    if camera_file is not None:
+        uploaded_file = camera_file 
 if uploaded_file is not None:
     try:
         image_bytes = uploaded_file.read()
@@ -126,6 +116,14 @@ if uploaded_file is not None:
         st.image(Image.open(io.BytesIO(image_bytes)), caption="Selected Image", use_column_width=True)
 
         leaf_class, disease_class, leaf_conf, disease_conf, disease_probs = predict_image(image, model, return_probs=True)
+
+        # Out-of-scope check
+        LEAF_CONF_THRESHOLD = 0.9995
+        DISEASE_CONF_THRESHOLD = 0.9995
+
+        if leaf_conf < LEAF_CONF_THRESHOLD or disease_conf < DISEASE_CONF_THRESHOLD:
+            st.error("❌ This image is outside the supported plant types (Out of Scope). Please upload a valid leaf image.")
+            st.stop()
 
         plant_name = Names[leaf_class]
         valid_indices = plant_disease_map.get(plant_name, [])
@@ -143,7 +141,33 @@ if uploaded_file is not None:
         st.write(f"**Disease**: {diseases[disease_class]} ({disease_conf * 100:.2f}% confidence)")
 
     except Exception as e:
-        st.error(f"Error during prediction: {str(e)}")
+        st.error(f"Error during prediction: {str(e)}")        
+# # Prediction code (same as before)
+# if uploaded_file is not None:
+#     try:
+#         image_bytes = uploaded_file.read()
+#         image = read_imagefile(image_bytes)
+#         st.image(Image.open(io.BytesIO(image_bytes)), caption="Selected Image", use_column_width=True)
+
+#         leaf_class, disease_class, leaf_conf, disease_conf, disease_probs = predict_image(image, model, return_probs=True)
+
+#         plant_name = Names[leaf_class]
+#         valid_indices = plant_disease_map.get(plant_name, [])
+
+#         if valid_indices:
+#             masked_probs = torch.tensor(
+#                 [disease_probs[i] if i in valid_indices else float("-inf") for i in range(len(disease_probs))]
+#             )
+#             disease_class = int(torch.argmax(masked_probs).item())
+#             disease_conf = disease_probs[disease_class]
+
+#         st.success("✅ Prediction Complete")
+#         st.write("### Results:")
+#         st.write(f"**Plant Name**: {plant_name} ({leaf_conf * 100:.2f}% confidence)")
+#         st.write(f"**Disease**: {diseases[disease_class]} ({disease_conf * 100:.2f}% confidence)")
+
+#     except Exception as e:
+#         st.error(f"Error during prediction: {str(e)}")
 
 ################Example End #########
 # uploaded_file = st.file_uploader("Upload Leaf Image", type=["jpg", "jpeg", "png"])
@@ -195,7 +219,3 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-
-# if __name__ == "__main__":
-#     import os
-#     os.system("streamlit run " + __file__)
